@@ -75,24 +75,117 @@ export class BlockRenderer {
         labelEl.textContent = label;
         row.appendChild(labelEl);
 
-        const select = document.createElement('select');
-        select.className = 'font-select';
+        const container = document.createElement('div');
+        container.className = 'custom-select-container';
 
-        const defaultOption = document.createElement('option');
-        defaultOption.value = '';
-        defaultOption.textContent = '-- Select Font --';
-        select.appendChild(defaultOption);
+        // Input field for searching
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'font-search-input';
+        input.placeholder = 'Select or type to search...';
+        input.value = selectedValue;
 
-        fonts.forEach(font => {
-            const option = document.createElement('option');
-            option.value = font;
-            option.textContent = font;
-            if (font === selectedValue) option.selected = true;
-            select.appendChild(option);
-        });
+        // Clear functionality if needed, for instance if user clears text, empty string
+        input.onchange = (e) => {
+            // If user manually types something that isn't in list, we might want to allow it or reset
+            // For now, let's strictly rely on selection or exact match?
+            // Actually, the requirement says "typed content may contain any part of the font name", usually implies filtering.
+            // We should probably only allow valid selections on blur if exact match, or just use the click handler.
+        };
 
-        select.onchange = (e) => onChange(e.target.value);
-        row.appendChild(select);
+        const optionsList = document.createElement('div');
+        optionsList.className = 'font-options-list';
+
+        const renderOptions = (filterText = '') => {
+            optionsList.innerHTML = '';
+            const lowerFilter = filterText.toLowerCase();
+
+            // "None" option
+            const defaultOption = document.createElement('div');
+            defaultOption.className = 'font-option';
+            defaultOption.textContent = '-- None --';
+            defaultOption.dataset.value = '';
+            defaultOption.onclick = () => selectOption('');
+            optionsList.appendChild(defaultOption);
+
+            const filteredFonts = fonts.filter(font =>
+                font.toLowerCase().includes(lowerFilter)
+            );
+
+            if (filteredFonts.length === 0) {
+                const noMatch = document.createElement('div');
+                noMatch.className = 'font-option no-match';
+                noMatch.textContent = 'No fonts found';
+                optionsList.appendChild(noMatch);
+            }
+
+            filteredFonts.forEach(font => {
+                const option = document.createElement('div');
+                option.className = 'font-option';
+                option.textContent = font;
+                option.dataset.value = font;
+                if (font === selectedValue) option.classList.add('selected');
+
+                option.onclick = () => selectOption(font);
+                optionsList.appendChild(option);
+            });
+        };
+
+        const selectOption = (value) => {
+            input.value = value;
+            optionsList.classList.remove('show');
+            onChange(value);
+        };
+
+        // Event Listeners
+        input.onfocus = () => {
+            renderOptions(input.value); // Show all or filter by current value? usually show all or filter if user starts typing.
+            // Let's filter by current value immediately so they see context, OR show all.
+            // Requirement: "typed content may contain any part of the font name"
+            // Usually standard behavior: focus -> show all (or filtered by current text), user types -> filter.
+            renderOptions('');
+            optionsList.classList.add('show');
+        };
+
+        input.oninput = (e) => {
+            renderOptions(e.target.value);
+            optionsList.classList.add('show');
+        };
+
+        // Click outside to close - tricky in component only, but we can use blur with delay
+        input.onblur = () => {
+            setTimeout(() => {
+                optionsList.classList.remove('show');
+                // Optional: valid value check
+                // if (!fonts.includes(input.value) && input.value !== '') {
+                //    input.value = selectedValue; // Revert if invalid?
+                // } 
+                // Let's simple hide for now. If they typed "Ari" and left, value remains "Ari". 
+                // But onChange isn't triggered unless they clicked. 
+                // If we want to support "Type 'Arial' and hit tab", we need to handle that.
+                // Let's try to match exactly or revert?
+                // For simplicity, we only commit on click.
+                // However, user might expect typing exact name to work.
+
+                const typed = input.value;
+                if (typed !== selectedValue) {
+                    // Check if exact match exists
+                    const exact = fonts.find(f => f === typed);
+                    if (exact) {
+                        onChange(exact);
+                    } else if (typed === '') {
+                        onChange('');
+                    } else {
+                        // Revert to last known good
+                        input.value = selectedValue;
+                    }
+                }
+            }, 200);
+        };
+
+        container.appendChild(input);
+        container.appendChild(optionsList);
+        row.appendChild(container);
 
         return row;
     }
@@ -106,8 +199,23 @@ export class BlockRenderer {
     }
 
     updateStats(blockId, stats) {
+        const card = document.querySelector(`.block-card[data-block-id="${blockId}"]`);
         const statsContainer = document.getElementById(`stats-${blockId}`);
-        if (statsContainer) {
+
+        if (card && statsContainer) {
+            // Calculate status
+            let statusClass = 'status-none'; // Default
+            if (stats.available === stats.total) {
+                statusClass = 'status-full';
+            } else if (stats.available > 0) {
+                statusClass = 'status-partial';
+            }
+
+            // Remove old status classes
+            card.classList.remove('status-full', 'status-partial', 'status-none');
+            // Add new status class
+            card.classList.add(statusClass);
+
             statsContainer.innerHTML = `
                 <span class="stat-item">Available: <strong>${stats.available}</strong></span>
                 <span class="stat-item" style="color: var(--danger)">Missing: <strong>${stats.missing}</strong></span>

@@ -130,37 +130,18 @@ class App {
         }
 
         newFonts[fontIndex] = fontValue;
-
-        // Filter out empty strings from the end, but keep order?
-        // Actually, we want to keep gaps? No, gaps are bad for fallback logic.
-        // Prompt says "Check fallback font 1... Continue checking all".
-        // If "Primary" is empty, technically fallback 1 becomes primary.
-        // But UI distinguishes positions.
-        // For simplicity: We store exactly what UI has.
-        // But for analysis, we might filter empty strings.
-
         blockConfig.fonts = newFonts;
-
-        // Update UI logic is handled by re-rendering OR we assume BlockRenderer handles local state changes?
-        // BlockRenderer.render creates NEW elements.
-        // Ideally we don't re-render the whole list effectively resetting scroll.
-        // So BlockRenderer should just be calling this to update GLOBAL state.
 
         // Trigger analysis
         await this.analyzeBlock(block);
+
+        // Update Live Preview
+        this.updateLivePreview();
     }
 
     handleAddFallback(block) {
         const blockConfig = this.config[block.block];
         blockConfig.fonts.push('');
-        // Re-render just this block?
-        // Simpler to clear and re-render JUST this block card.
-        // But implementing targeted re-render needs access to DOM element.
-        // For MVP, we can refresh the list position?
-        // Let's rely on BlockRenderer to be smart?
-        // Actually, BlockRenderer creates new Elements.
-        // Let's implement a hack: re-render everything (performance hit?)
-        // Better: find the card and replace it.
 
         const card = document.querySelector(`.block-card[data-block-id="${block.id}"]`);
         if (card) {
@@ -177,6 +158,8 @@ class App {
 
         if (activeFonts.length === 0) {
             this.renderer.updateStats(block.id, { available: 0, missing: (block.endCode - block.startCode + 1) });
+            // If fonts are removed, we should update preview too
+            this.updateLivePreview();
             return;
         }
 
@@ -209,13 +192,6 @@ class App {
 
     async generateFullReport() {
         const validBlocks = [];
-        // Only include blocks that have at least one font?
-        // System prompt: "This logic must be applied to all Unicode blocks defined in the CSV file"
-        // Even if empty?
-        // "Report values must be... Missing font... Unassigned...".
-        // If no font selected, everything is "Missing font" (or Unassigned).
-        // So we should send ALL blocks.
-
         this.blocks.forEach(block => {
             const cfg = this.config[block.block];
             validBlocks.push({
@@ -232,17 +208,56 @@ class App {
         }
     }
 
+    async updateLivePreview() {
+        // Filter only blocks that have configured fonts
+        const configuredBlocks = [];
+        this.blocks.forEach(block => {
+            const cfg = this.config[block.block];
+            const activeFonts = cfg ? cfg.fonts.filter(f => f) : [];
+
+            if (activeFonts.length > 0) {
+                configuredBlocks.push({
+                    ...block,
+                    fonts: activeFonts
+                });
+            }
+        });
+
+        if (configuredBlocks.length === 0) {
+            document.getElementById('json-output').textContent = JSON.stringify({
+                status: "Select fonts to view live preview..."
+            }, null, 2);
+            return;
+        }
+
+        try {
+            // We use the same generate-report endpoint, but with a filtered list
+            const report = await apiClient.generateReport(configuredBlocks);
+            document.getElementById('json-output').textContent = JSON.stringify(report, null, 2);
+        } catch (e) {
+            console.error('Live preview error:', e);
+        }
+    }
+
     async handleExport() {
         const filename = document.getElementById('export-filename').value || 'report.json';
-        // Generate most recent data first
-        await this.generateFullReport();
-
+        // Check current content validity
         const content = document.getElementById('json-output').textContent;
         try {
             const json = JSON.parse(content);
+            // If it's just the status message, warn user? Or just export it? 
+            // Better to force full report generation if they hit export?
+            // "JSON Report Preview should be rendered automatically... Generate Full Report button is clicked".
+            // If they click Export, they likely want what they see OR the full report.
+            // Let's assume Export exports what is in the preview box.
+
+            if (json.status && Object.keys(json).length === 1) {
+                // It's likely the placeholder.
+                if (!confirm("The report preview seems empty or incomplete. Export anyway?")) return;
+            }
             importExport.downloadReport(json, filename);
         } catch (e) {
-            alert('No valid report to export. Generate it first.');
+            alert('No valid report to export.');
         }
     }
 
@@ -262,7 +277,9 @@ class App {
             // Re-render UI
             this.renderBlocks(); // Updates all dropdowns
 
-            // Trigger usage of imported fonts?
+            // Update Live Preview
+            this.updateLivePreview();
+
             alert('Configuration imported successfully!');
         } catch (e) {
             console.error(e);

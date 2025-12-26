@@ -108,7 +108,8 @@ body {
     overflow: hidden;
 }
 
-.left-panel, .right-panel {
+.left-panel,
+.right-panel {
     background: var(--panel-bg);
     overflow-y: auto;
     display: flex;
@@ -116,7 +117,8 @@ body {
 }
 
 .left-panel {
-    width: 60%; /* Initial width */
+    width: 60%;
+    /* Initial width */
     min-width: 300px;
     border-right: 1px solid var(--border-color);
 }
@@ -124,12 +126,13 @@ body {
 .right-panel {
     flex: 1;
     min-width: 200px;
-    background: #1e293b; /* Dark for code */
+    background: #1e293b;
+    /* Dark for code */
     color: #e2e8f0;
 }
 
 .block-card {
-    padding: 1.5rem;
+    padding: 1rem;
     border-bottom: 1px solid var(--border-color);
 }
 
@@ -137,7 +140,7 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: baseline;
-    margin-bottom: 1rem;
+    margin-bottom: 0.5rem;
 }
 
 .block-title {
@@ -153,8 +156,8 @@ body {
 .font-selectors {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
-    margin-bottom: 1rem;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
 }
 
 .font-row {
@@ -169,19 +172,79 @@ body {
     color: var(--text-secondary);
 }
 
-.font-select {
+/* Custom Searchable Dropdown */
+.custom-select-container {
     flex: 1;
-    padding: 0.4rem;
+    position: relative;
+}
+
+.font-search-input {
+    width: 100%;
+    padding: 0.35rem 0.5rem;
     border: 1px solid var(--border-color);
     border-radius: 4px;
+    font-size: 0.875rem;
+    font-family: inherit;
+}
+
+.font-search-input:focus {
+    outline: 2px solid var(--primary-color);
+    border-color: transparent;
+}
+
+.font-options-list {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    max-height: 200px;
+    overflow-y: auto;
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: 0 0 4px 4px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+    display: none;
+}
+
+.font-options-list.show {
+    display: block;
+}
+
+.font-option {
+    padding: 0.5rem;
+    font-size: 0.875rem;
+    cursor: pointer;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.font-option:last-child {
+    border-bottom: none;
+}
+
+.font-option:hover {
+    background-color: #f8fafc;
+}
+
+.font-option.selected {
+    background-color: #eff6ff;
+    color: var(--primary-color);
+    font-weight: 500;
+}
+
+.font-option.no-match {
+    color: var(--text-secondary);
+    font-style: italic;
+    cursor: default;
 }
 
 .coverage-stats {
     display: flex;
     gap: 1.5rem;
     font-size: 0.875rem;
-    background: rgba(37, 99, 235, 0.05); /* Light blue */
-    padding: 0.75rem;
+    background: rgba(37, 99, 235, 0.05);
+    /* Light blue */
+    padding: 0.5rem;
     border-radius: 6px;
 }
 
@@ -233,4 +296,30 @@ pre {
     font-size: 0.875rem;
     white-space: pre-wrap;
     word-break: break-all;
+}
+
+/* Coverage Status Colors */
+.block-card.status-full {
+    background-color: #E6F4EA;
+    /* Pleasant Green */
+    border-left: 4px solid #137333;
+}
+
+.block-card.status-partial {
+    background-color: #FEF7E0;
+    /* Warm Orange/Yellow */
+    border-left: 4px solid #B06000;
+}
+
+.block-card.status-none {
+    background-color: #FCE8E6;
+    /* Soft Red */
+    border-left: 4px solid #C5221F;
+}
+
+/* Ensure text remains readable on colored backgrounds */
+.block-card.status-full .block-title,
+.block-card.status-partial .block-title,
+.block-card.status-none .block-title {
+    color: var(--text-primary);
 }
