@@ -1,0 +1,236 @@
+:root {
+    --primary-color: #2563eb;
+    --primary-hover: #1d4ed8;
+    --bg-color: #f8fafc;
+    --panel-bg: #ffffff;
+    --border-color: #e2e8f0;
+    --text-primary: #1e293b;
+    --text-secondary: #64748b;
+    --danger: #ef4444;
+    --success: #22c55e;
+    --resizer-width: 8px;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.app-header {
+    background: var(--panel-bg);
+    border-bottom: 1px solid var(--border-color);
+    padding: 1rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.app-header h1 {
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.controls {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.btn {
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn.primary {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.btn.primary:hover {
+    background-color: var(--primary-hover);
+}
+
+.btn.secondary {
+    background-color: white;
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+.btn.secondary:hover {
+    border-color: var(--text-secondary);
+}
+
+.btn.text-btn {
+    background: none;
+    color: var(--text-secondary);
+    padding: 0.25rem 0.5rem;
+}
+
+.btn.small {
+    padding: 0.25rem 0.75rem;
+    font-size: 0.75rem;
+}
+
+.input-group {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.input-group input {
+    padding: 0.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 0.875rem;
+    width: 200px;
+}
+
+/* Split Layout */
+.split-container {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+}
+
+.left-panel, .right-panel {
+    background: var(--panel-bg);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.left-panel {
+    width: 60%; /* Initial width */
+    min-width: 300px;
+    border-right: 1px solid var(--border-color);
+}
+
+.right-panel {
+    flex: 1;
+    min-width: 200px;
+    background: #1e293b; /* Dark for code */
+    color: #e2e8f0;
+}
+
+.block-card {
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.block-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 1rem;
+}
+
+.block-title {
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.block-meta {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.font-selectors {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.font-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.font-row label {
+    width: 80px;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.font-select {
+    flex: 1;
+    padding: 0.4rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+}
+
+.coverage-stats {
+    display: flex;
+    gap: 1.5rem;
+    font-size: 0.875rem;
+    background: rgba(37, 99, 235, 0.05); /* Light blue */
+    padding: 0.75rem;
+    border-radius: 6px;
+}
+
+.stat-item strong {
+    font-weight: 600;
+}
+
+.resizer {
+    width: var(--resizer-width);
+    background: var(--bg-color);
+    cursor: col-resize;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-left: 1px solid var(--border-color);
+    border-right: 1px solid var(--border-color);
+}
+
+.resizer:hover {
+    background: var(--border-color);
+}
+
+.panel-header {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    background: var(--panel-bg);
+    z-index: 10;
+}
+
+.right-panel .panel-header {
+    background: #0f172a;
+    border-bottom: 1px solid #334155;
+    color: white;
+}
+
+.preview-content {
+    flex: 1;
+    padding: 1rem;
+    overflow: auto;
+}
+
+pre {
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 0.875rem;
+    white-space: pre-wrap;
+    word-break: break-all;
+}

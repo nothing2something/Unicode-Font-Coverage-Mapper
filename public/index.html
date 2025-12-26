@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unicode Font Coverage Mapper</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="app-header">
+        <h1>Unicode Font Coverage Mapper</h1>
+        <div class="controls">
+            <div class="file-group">
+                <label for="font-upload" class="btn secondary">Upload Fonts</label>
+                <input type="file" id="font-upload" accept=".ttf,.otf" multiple hidden>
+            </div>
+            <div class="file-group">
+                <label for="import-json" class="btn secondary">Import JSON</label>
+                <input type="file" id="import-json" accept=".json" hidden>
+            </div>
+            <div class="input-group">
+                <input type="text" id="export-filename" placeholder="report" value="coverage-report">
+                <button id="export-btn" class="btn primary">Export JSON</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="split-container">
+        <section class="left-panel" id="blocks-panel">
+            <div class="panel-header">
+                <h2>Unicode Blocks</h2>
+                <div class="global-actions">
+                    <button id="refresh-fonts" class="btn text-btn">Refresh Fonts</button>
+                    <button id="generate-all-btn" class="btn primary small">Generate Full Report</button>
+                </div>
+            </div>
+            <div id="blocks-list" class="blocks-list">
+                <!-- Blocks will be rendered here -->
+                <div class="loading">Loading Unicode Blocks...</div>
+            </div>
+        </section>
+
+        <div class="resizer" id="drag-handle"></div>
+
+        <section class="right-panel" id="preview-panel">
+            <div class="panel-header">
+                <h2>JSON Report Preview</h2>
+            </div>
+            <div class="preview-content">
+                <pre id="json-output">
+{
+  "status": "Ready to generate report..."
+}
+                </pre>
+            </div>
+        </section>
+    </main>
+
+    <script type="module" src="js/app.js"></script>
+</body>
+</html>
