@@ -216,8 +216,10 @@ export class BlockRenderer {
             // Add new status class
             card.classList.add(statusClass);
 
+            const percentage = stats.total > 0 ? Math.round((stats.available / stats.total) * 100) : 0;
+
             statsContainer.innerHTML = `
-                <span class="stat-item">Available: <strong>${stats.available}</strong></span>
+                <span class="stat-item">Available: <strong>${stats.available}/${stats.total} (${percentage}%)</strong></span>
                 <span class="stat-item" style="color: var(--danger)">Missing: <strong>${stats.missing}</strong></span>
             `;
         }

@@ -17,6 +17,17 @@ export const importExport = {
         URL.revokeObjectURL(url);
     },
 
+    async copyToClipboard(data) {
+        try {
+            const dataStr = JSON.stringify(data, null, 2);
+            await navigator.clipboard.writeText(dataStr);
+            return true;
+        } catch (err) {
+            console.error('Failed to copy: ', err);
+            return false;
+        }
+    },
+
     async handleImport(file) {
         // We upload to backend to specific logic or parse here?
         // Prompt says "When a JSON file is imported: Restore font selections..."

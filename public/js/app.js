@@ -38,7 +38,7 @@ class App {
 
         document.getElementById('font-upload').onchange = (e) => this.handleFontUpload(e.target.files);
 
-        document.getElementById('export-btn').onclick = () => this.handleExport();
+        document.getElementById('copy-btn').onclick = () => this.handleCopyJSON();
 
         document.getElementById('import-json').onchange = (e) => this.handleImport(e.target.files[0]);
 
@@ -239,25 +239,26 @@ class App {
         }
     }
 
-    async handleExport() {
-        const filename = document.getElementById('export-filename').value || 'report.json';
-        // Check current content validity
+    async handleCopyJSON() {
         const content = document.getElementById('json-output').textContent;
         try {
             const json = JSON.parse(content);
-            // If it's just the status message, warn user? Or just export it? 
-            // Better to force full report generation if they hit export?
-            // "JSON Report Preview should be rendered automatically... Generate Full Report button is clicked".
-            // If they click Export, they likely want what they see OR the full report.
-            // Let's assume Export exports what is in the preview box.
 
             if (json.status && Object.keys(json).length === 1) {
-                // It's likely the placeholder.
-                if (!confirm("The report preview seems empty or incomplete. Export anyway?")) return;
+                if (!confirm("The report preview seems empty. Copy placeholder anyway?")) return;
             }
-            importExport.downloadReport(json, filename);
+
+            const success = await importExport.copyToClipboard(json);
+            if (success) {
+                const btn = document.getElementById('copy-btn');
+                const originalText = btn.textContent;
+                btn.textContent = 'Copied!';
+                setTimeout(() => btn.textContent = originalText, 2000);
+            } else {
+                alert('Failed to copy to clipboard.');
+            }
         } catch (e) {
-            alert('No valid report to export.');
+            alert('No valid JSON to copy.');
         }
     }
 
